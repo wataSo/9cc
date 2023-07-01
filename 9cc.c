@@ -139,7 +139,7 @@ Token *tokenize() {
 			continue;
 		}
 
-		if (*p == '+' || *p == '-') {
+		if (strchr("+-()", *p)) {
 			cur = new_token(TK_RESERVED, cur, p++);
 			continue;
 		}
@@ -157,14 +157,9 @@ Token *tokenize() {
 	return head.next;
 }
 
-Node *primary() {
-	return new_node_num(expect_number());
-}
-
-Node *mul() {
-	Node *node = primary();
-	return node;
-}
+Node *expr();
+Node *mul();
+Node *primary();
 
 Node *expr() {
 	Node *node = mul();
@@ -177,6 +172,22 @@ Node *expr() {
 		else
 			return node;
 	}
+}
+
+Node *mul() {
+	Node *node = primary();
+	return node;
+}
+
+Node *primary() {
+	// if next token is "(" then, "(" expr ")".
+	if (consume('(')) {
+		Node *node = expr();
+		expect(')');
+		return node;
+	}
+
+	return new_node_num(expect_number());
 }
 
 void gen(Node *node) {
