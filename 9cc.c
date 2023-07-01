@@ -9,6 +9,8 @@
 typedef enum {
 	ND_ADD, // +
 	ND_SUB, // -
+	ND_MUL, // *
+	ND_DIV, // /
 	ND_NUM, // integer
 } NodeKind;
 
@@ -139,7 +141,7 @@ Token *tokenize() {
 			continue;
 		}
 
-		if (strchr("+-()", *p)) {
+		if (strchr("+-*/()", *p)) {
 			cur = new_token(TK_RESERVED, cur, p++);
 			continue;
 		}
@@ -150,7 +152,7 @@ Token *tokenize() {
 			continue;
 		}
 
-		error_at(p, "expected a number");
+		error_at(p, "invalid token");
 	}
 
 	new_token(TK_EOF, cur, p);
@@ -176,7 +178,14 @@ Node *expr() {
 
 Node *mul() {
 	Node *node = primary();
-	return node;
+	for (;;) {
+		if (consume('*'))
+			node = new_node(ND_MUL, node, primary());
+		else if (consume('/'))
+			node = new_node(ND_DIV, node, primary());
+		else
+			return node;
+	}
 }
 
 Node *primary() {
@@ -208,6 +217,13 @@ void gen(Node *node) {
 			break;
 		case ND_SUB:
 			printf("	sub rax, rdi\n");
+			break;
+		case ND_MUL:
+			printf("	imul rax, rdi\n");
+			break;
+		case ND_DIV:
+			printf("	cqo\n");
+			printf("	idiv rdi\n");
 			break;
 	}
 	printf("	push rax\n");
