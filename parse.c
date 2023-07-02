@@ -1,7 +1,11 @@
 #include "9cc.h"
 
+//#define MAX_LINES_OF_PROGRAM 100
+
 static Token *token;
 
+static void program(Node **code);
+static Node *stmt();
 static Node *expr();
 static Node *equality();
 static Node *relational();
@@ -59,6 +63,22 @@ static int expect_number() {
 
 static bool at_eof() {
 	return token->kind == TK_EOF;
+}
+
+// program = stmt*
+static void program(Node **code) {
+    int i = 0;
+    while (!at_eof()){
+        code[i++] = stmt();
+    }
+    code[i] = NULL;
+}
+
+// stmt = expr ";"
+static Node *stmt() {
+    Node *node = expr();
+    expect(";");
+    return node;
 }
 
 // expr = equality
@@ -147,9 +167,8 @@ static Node *primary() {
 	return new_node_num(expect_number());
 }
 
-Node *parse(Token *tok) {
+void parse(Token *tok, Node **code) {
     token = tok;
-    Node *node = expr();
+    program(code);
     // error handling
-    return node;
 }

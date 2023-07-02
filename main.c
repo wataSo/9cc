@@ -7,10 +7,11 @@ int main(int argc, char **argv) {
 	}
 
 	Token *token = tokenize(argv[1]);
-	Node *node = parse(token);
+	Node *code[MAX_LINES_OF_PROGRAM];
+	parse(token, code);
 
 	// we generate code while wolking down AST
-	codegen(node);
+	codegen(code);
 
 	return 0;
 }

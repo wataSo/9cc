@@ -50,17 +50,19 @@ static void gen(Node *node) {
 	printf("	push rax\n");
 }
 
-void codegen(Node *node) {
+void codegen(Node **node) {
     // first half of ascenbry
 	printf(".intel_syntax noprefix\n");
 	printf(".global main\n");
 	printf("main:\n");
 
-    gen(node);
-
-    // Top of Stack have return value of input,
-	// therefor we load the value to RAX and return.
-	printf("	pop rax\n");
+    int i;
+    for(i = 0; i <= MAX_LINES_OF_PROGRAM; i++){
+        if (node[i] == NULL)
+            break;
+        gen(node[i]);
+        printf("	pop rax\n");
+    }
 	printf("	ret\n");
 
 }
