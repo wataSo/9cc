@@ -2,7 +2,15 @@
 
 static Token *token;
 
-Node *new_node(NodeKind kind, Node *lhs, Node *rhs) {
+static Node *expr();
+static Node *equality();
+static Node *relational();
+static Node *add();
+static Node *mul();
+static Node *unary();
+static Node *primary();
+
+static Node *new_node(NodeKind kind, Node *lhs, Node *rhs) {
 	Node *node = calloc(1, sizeof(Node));
 	node->kind = kind;
 	node->lhs  = lhs;
@@ -10,7 +18,7 @@ Node *new_node(NodeKind kind, Node *lhs, Node *rhs) {
 	return node;
 }
 
-Node *new_node_num(int val) {
+static Node *new_node_num(int val) {
 	Node *node = calloc(1, sizeof(Node));
 	node->kind = ND_NUM;
 	node->val = val;
@@ -19,7 +27,7 @@ Node *new_node_num(int val) {
 
 //
 //
-bool consume(char *op) {
+static bool consume(char *op) {
 	if (token->kind   != TK_RESERVED || 
 		strlen(op)    != token->len  ||
 		memcmp(token->str, op, token->len))
@@ -31,7 +39,7 @@ bool consume(char *op) {
 
 // if next token is expected symbol, we forward a token
 // and return true. Otherwise return fals
-void expect(char *op) {
+static void expect(char *op) {
 	if (token->kind != TK_RESERVED || 
 		strlen(op)    != token->len  ||
 		memcmp(token->str, op, token->len))
@@ -41,7 +49,7 @@ void expect(char *op) {
 
 // if next token is number, we forward a token and return the number.
 // Otherwise report error.
-int expect_number() {
+static int expect_number() {
 	if (token->kind != TK_NUM)
 		error_at(token->str, "expected a number");
 	int val = token->val;
@@ -49,25 +57,17 @@ int expect_number() {
 	return val;
 }
 
-bool at_eof() {
+static bool at_eof() {
 	return token->kind == TK_EOF;
 }
 
-Node *expr();
-Node *equality();
-Node *relational();
-Node *add();
-Node *mul();
-Node *unary();
-Node *primary();
-
 // expr = equality
-Node *expr() {
+static Node *expr() {
 	return equality();
 }
 
 // equality = relational ("==" relational | "!=" relational)*
-Node *equality() {
+static Node *equality() {
 	Node *node = relational();
 
 	for (;;) {
@@ -81,7 +81,7 @@ Node *equality() {
 }
 
 // relation = add ("<" add | "<=" add | ">" add | ">=" add)
-Node *relational() {
+static Node *relational() {
 	Node *node = add();
 
 	for (;;) {
@@ -100,7 +100,7 @@ Node *relational() {
 }
 
 // add = mul ("+" mul | "-" mul)*
-Node *add() {
+static Node *add() {
 	Node *node = mul();
 
 	for (;;) {
@@ -114,7 +114,7 @@ Node *add() {
 }
 
 //mul = unary ("*" unary | "/" unary)*
-Node *mul() {
+static Node *mul() {
 	Node *node = unary();
 	for (;;) {
 		if (consume("*"))
@@ -127,7 +127,7 @@ Node *mul() {
 }
 
 // unary   = ("+" | "-")? unary | primary
-Node *unary() {
+static Node *unary() {
 	if (consume("+"))
 		return unary();
 	if (consume("-"))
@@ -136,7 +136,7 @@ Node *unary() {
 }
 
 //primary = "(" expr ")" | num
-Node *primary() {
+static Node *primary() {
 	// if next token is "(" then, "(" expr ")".
 	if (consume("(")) {
 		Node *node = expr();
