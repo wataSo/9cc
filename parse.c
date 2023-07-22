@@ -71,7 +71,7 @@ static void program(Node **code) {
     while (!at_eof()){
         code[i++] = stmt();
     }
-    code[i] = NULL;
+    code[i] = END_OF_CODE;
 }
 
 // stmt = expr ";"

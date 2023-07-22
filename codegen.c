@@ -51,14 +51,14 @@ static void gen(Node *node) {
 }
 
 void codegen(Node **node) {
-    // first half of ascenbry
+    // first half of assembly
 	printf(".intel_syntax noprefix\n");
 	printf(".global main\n");
 	printf("main:\n");
 
     int i;
     for(i = 0; i <= MAX_LINES_OF_PROGRAM; i++){
-        if (node[i] == NULL)
+        if (node[i] == END_OF_CODE)
             break;
         gen(node[i]);
         printf("	pop rax\n");

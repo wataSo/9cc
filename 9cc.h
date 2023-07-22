@@ -6,6 +6,7 @@
 #include <string.h>
 
 #define MAX_LINES_OF_PROGRAM 100
+#define END_OF_CODE NULL
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                              tokenize.c                                                    //
