@@ -13,4 +13,10 @@ test: 9cc
 clean:
 	rm -f 9cc *.o *~ tmp*
 
+9ccdbg:  $(OBJS)
+	$(CC) -Wall -g -o 9cc $(OBJS) $(LDFLAGS)
+
+debug: 9ccdbg
+
+
 .PHONY: test clean

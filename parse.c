@@ -7,6 +7,7 @@ static Token *token;
 static void program(Node **code);
 static Node *stmt();
 static Node *expr();
+static Node *assign();
 static Node *equality();
 static Node *relational();
 static Node *add();
@@ -61,6 +62,16 @@ static int expect_number() {
 	return val;
 }
 
+// 
+static Token *consume_ident() {
+	if (token->kind != TK_IDENT) {
+		return NULL;
+	}
+	Token *tok = token;
+	token = token->next;
+	return tok;
+}
+
 static bool at_eof() {
 	return token->kind == TK_EOF;
 }
@@ -81,9 +92,18 @@ static Node *stmt() {
     return node;
 }
 
-// expr = equality
+// expr = assign
 static Node *expr() {
-	return equality();
+	return assign();
+}
+
+// assign = equality ("=" assign)?
+static Node *assign() {
+	Node *node = equality();
+	if (consume("=")) {
+		node = new_node(ND_ASSIGN, node, assign());
+	}
+	return node;
 }
 
 // equality = relational ("==" relational | "!=" relational)*
@@ -155,12 +175,20 @@ static Node *unary() {
 	return primary();
 }
 
-//primary = "(" expr ")" | num
+//primary = "(" expr ")" | num | ident
 static Node *primary() {
 	// if next token is "(" then, "(" expr ")".
 	if (consume("(")) {
 		Node *node = expr();
 		expect(")");
+		return node;
+	}
+
+	Token *tok = consume_ident();
+	if (tok) {
+		Node *node = calloc(1, sizeof(Node));
+		node->kind = ND_LVAR;
+		node->offset = (tok->str[0] - 'a' + 1) * 8;
 		return node;
 	}
 

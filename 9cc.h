@@ -15,6 +15,7 @@
 // kind of token
 typedef enum {
 	TK_RESERVED, // kigou
+	TK_IDENT,    // shikibetusi
 	TK_NUM,      // integer token
 	TK_EOF,      // end of input token
 } TokenKind;
@@ -41,15 +42,17 @@ Token *tokenize(char *p);
 
 // kind of abstract syntax tree
 typedef enum {
-	ND_ADD, // +
-	ND_SUB, // -
-	ND_MUL, // *
-	ND_DIV, // /
-	ND_EQ,  // ==
-	ND_NE,  // !=
-	ND_LT,  // <
-	ND_LE,  // <=
-	ND_NUM, // integer
+	ND_ADD,    // +
+	ND_SUB,    // -
+	ND_MUL,    // *
+	ND_DIV,    // /
+	ND_ASSIGN, // =
+	ND_LVAR,   // local variable
+	ND_EQ,     // ==
+	ND_NE,     // !=
+	ND_LT,     // <
+	ND_LE,     // <=
+	ND_NUM,    // integer
 } NodeKind;
 
 // AST node type
@@ -59,6 +62,7 @@ struct Node {
 	Node *lhs;      // left hand side
 	Node *rhs; 		// right hand side
 	int val;   		// use when kind is ND_NUM
+	int offset;     // use when kind is ND_LVAR
 };
 
 void parse(Token *tok, Node **code);
